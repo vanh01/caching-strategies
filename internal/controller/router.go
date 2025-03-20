@@ -47,7 +47,7 @@ func (u *UserRouter) GetMe(c echo.Context) error {
 
 	user, err := u.UserUsecase.GetById(context.Background(), userID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, user)

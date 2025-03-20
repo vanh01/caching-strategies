@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -11,7 +10,6 @@ import (
 )
 
 func ConnectToRedis(url string) (*redis.Client, error) {
-	fmt.Println(url)
 	opts, err := redis.ParseURL(url)
 	if err != nil {
 		log.Printf("Failed to connect to redis cache:%s\n", err.Error())

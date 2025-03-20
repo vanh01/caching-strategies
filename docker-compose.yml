@@ -2,10 +2,19 @@ version: '3'
 
 services:
   api-service:
-    build: .
-    image: cs
+    # for hot reload
+    image: golang:1.23-alpine
     container_name: cs
+    volumes:
+      - ./:/app_service
+    working_dir: /app_service
+    command: sh -c "go mod tidy && go install github.com/cosmtrek/air@v1.49.0 && air -c .air.toml"
+    # for prod
+    # build: .
+    # image: cs
+    # container_name: cs
     depends_on:
+      - db-service
       - redis-service
       - prometheus-service
     ports:

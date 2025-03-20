@@ -22,13 +22,19 @@ func NewUserRepo(db *sql.DB) *userRepo {
 }
 
 func (a *userRepo) GetById(ctx context.Context, id uuid.UUID) (*model.User, error) {
-	rows, err := squirrel.
+	sql, args, err := squirrel.
+		StatementBuilder.
+		PlaceholderFormat(squirrel.Dollar).
 		Select("*").
-		From("user").
+		From(USER).
+		Where(squirrel.Eq{"id": id}).
 		Limit(1).
-		Where(squirrel.Eq{"id": id}, id).
-		RunWith(a.db).
-		QueryContext(ctx)
+		ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := a.db.QueryContext(ctx, sql, args...)
 	if err != nil {
 		return nil, err
 	}

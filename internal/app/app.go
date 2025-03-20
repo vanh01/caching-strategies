@@ -35,11 +35,18 @@ func Run() {
 		return
 	}
 
-	db, err := sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", "username", "password", "host", "database", "schema"))
+	pgConfig := config.Instance.PostgreConfig
+	dataSource := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", pgConfig.User, pgConfig.Password, pgConfig.Host, pgConfig.DBName)
+	db, err := sql.Open("postgres", dataSource)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Err to ping to database: %s\n", err.Error())
+		return
+	}
+
 	cache := cache.NewBaseCache(client)
 	userRepo := repo.NewUserRepo(db)
 	userUsecase := usecase.NewUserUsecase(userRepo)
