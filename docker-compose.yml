@@ -1,0 +1,86 @@
+version: '3'
+
+services:
+  api-service:
+    build: .
+    image: cs
+    container_name: cs
+    depends_on:
+      - redis-service
+      - prometheus-service
+    ports:
+      - "8080:8080"
+    networks:
+      - cs-net
+    restart: unless-stopped
+    tty: true
+
+  db-service:
+    image: postgres:15.1-alpine
+    container_name: cs-pg
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - cs-pg:/var/lib/postgresql/data
+    networks:
+      - cs-net
+    restart: unless-stopped
+
+  redis-service:
+    image: redis:7.2-alpine
+    container_name: cs-redis
+    ports:
+      - 6379:6379
+    networks:
+      - cs-net
+    volumes:
+      - cs-redis:/data
+    command: redis-server --save 20 1 --loglevel warning --requirepass 123456
+    restart: unless-stopped
+
+  prometheus-service:
+    image: prom/prometheus:latest
+    container_name: cs-prometheus
+    ports:
+      - 9090:9090
+    networks:
+      - cs-net
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - cs-prometheus:/prometheus
+    restart: unless-stopped
+
+  grafana-service:
+    image: grafana/grafana:11.4.0-ubuntu
+    container_name: cs-grafana
+    ports:
+      - 3000:3000
+    networks:
+      - cs-net
+    depends_on:
+      - prometheus-service
+    volumes:
+      - cs-grafana:/var/lib/grafana
+    restart: unless-stopped
+
+volumes:
+  cs-pg:
+    name: cs-pg
+    driver: local
+  cs-redis:
+    name: cs-redis
+    driver: local
+  cs-prometheus:
+    name: cs-prometheus
+    driver: local
+  cs-grafana:
+    name: cs-grafana
+    driver: local
+
+networks:
+  cs-net:
+    name: cs-net
+    driver: bridge

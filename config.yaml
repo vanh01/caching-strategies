@@ -1,0 +1,17 @@
+AppName: "Caching strategies"
+Port: 8080
+
+RedisConfig:
+    Host: cs-redis
+    Password: 123456
+    Port: 6379
+    DB: 0
+
+PostgreConfig:
+    # Host: localhost
+    Host: cs-pg
+    User: postgres
+    Password: 123456
+    DBName: postgres
+    Schema: public
+    Port: 5432
