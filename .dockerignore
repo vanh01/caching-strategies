@@ -4,3 +4,4 @@ tmp/
 .gitignore
 *.service
 *.md
+assests/

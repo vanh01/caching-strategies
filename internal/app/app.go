@@ -49,7 +49,7 @@ func Run() {
 
 	cache := cache.NewBaseCache(client)
 	userRepo := repo.NewUserRepo(db)
-	userUsecase := usecase.NewUserUsecase(userRepo)
+	userUsecase := usecase.NewUserUsecase(userRepo, cache)
 
 	controller.New(e, controller.UsecaseParam{
 		UserUsecase: userUsecase,
