@@ -31,7 +31,7 @@ func (a *userUsecase) GetById(ctx context.Context, id uuid.UUID) (*model.User, e
 	}
 
 	if err == redis.Nil {
-		fmt.Println("Get data from database")
+		fmt.Printf("Get user from database by %s\n", id)
 		user, err = a.userRepo.GetById(ctx, id)
 		if err != nil {
 			return nil, err
@@ -41,4 +41,8 @@ func (a *userUsecase) GetById(ctx context.Context, id uuid.UUID) (*model.User, e
 	}
 
 	return user, nil
+}
+
+func (a *userUsecase) GetByIdWithoutCache(ctx context.Context, id uuid.UUID) (*model.User, error) {
+	return a.userRepo.GetById(ctx, id)
 }

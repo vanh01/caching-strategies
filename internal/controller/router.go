@@ -39,7 +39,7 @@ type UserRouter struct {
 }
 
 func (u *UserRouter) GetMe(c echo.Context) error {
-	id := c.Request().Header.Get("userId")
+	id := c.Request().Header.Get("User-ID")
 	userID, err := uuid.Parse(id)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())

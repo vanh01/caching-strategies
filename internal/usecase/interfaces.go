@@ -11,6 +11,7 @@ import (
 type (
 	UserUsecase interface {
 		GetById(ctx context.Context, id uuid.UUID) (*model.User, error)
+		GetByIdWithoutCache(ctx context.Context, id uuid.UUID) (*model.User, error)
 	}
 )
 
