@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	"github.com/vanh01/caching-strategies/internal/model"
 	"github.com/vanh01/caching-strategies/internal/usecase"
 	"github.com/vanh01/caching-strategies/pkg/cache"
 )
@@ -45,7 +46,13 @@ func (u *UserRouter) GetMe(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	user, err := u.UserUsecase.GetById(context.Background(), userID)
+	caching := c.QueryParam("caching")
+	var user *model.User
+	if caching == "true" {
+		user, err = u.UserUsecase.GetById(context.Background(), userID)
+	} else {
+		user, err = u.UserUsecase.GetByIdWithoutCache(context.Background(), userID)
+	}
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

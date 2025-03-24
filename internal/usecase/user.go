@@ -12,20 +12,20 @@ import (
 )
 
 type userUsecase struct {
-	userRepo UserRepo
-	redis    *cache.BaseCache
+	userRepo   UserRepo
+	cacheAside *cache.BaseCache
 }
 
 func NewUserUsecase(userRepo UserRepo, cache *cache.BaseCache) *userUsecase {
 	return &userUsecase{
-		userRepo: userRepo,
-		redis:    cache,
+		userRepo:   userRepo,
+		cacheAside: cache,
 	}
 }
 
 func (a *userUsecase) GetById(ctx context.Context, id uuid.UUID) (*model.User, error) {
 	var user *model.User
-	err := a.redis.GetObject(id.String(), &user)
+	err := a.cacheAside.GetObject(id.String(), &user)
 	if err != nil && err != redis.Nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (a *userUsecase) GetById(ctx context.Context, id uuid.UUID) (*model.User, e
 			return nil, err
 		}
 
-		a.redis.SetObject(id.String(), user, 5*60)
+		a.cacheAside.SetObject(id.String(), user, 5*60)
 	}
 
 	return user, nil
