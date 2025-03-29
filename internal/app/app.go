@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -9,9 +10,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"github.com/vanh01/caching-strategies/config"
 	"github.com/vanh01/caching-strategies/internal/controller"
+	cuscache "github.com/vanh01/caching-strategies/internal/cus_cache"
 	"github.com/vanh01/caching-strategies/internal/repo"
 	"github.com/vanh01/caching-strategies/internal/usecase"
 	"github.com/vanh01/caching-strategies/pkg/cache"
@@ -47,6 +51,12 @@ func Run() {
 		return
 	}
 
+	goDb, err := gorm.Open(postgres.Open(dataSource))
+	if err != nil {
+		log.Fatal(context.Background(), "Cannot connect to db: %v", err.Error())
+	}
+
+	cuscache.New(goDb)
 	cache := cache.NewBaseCache(client)
 	userRepo := repo.NewUserRepo(db)
 	userUsecase := usecase.NewUserUsecase(userRepo, cache)

@@ -32,6 +32,7 @@ func New(e *echo.Echo, params UsecaseParam) {
 		})
 
 		g.GET("/user/me", userRouter.GetMe)
+		g.GET("/user/me/read-through", userRouter.GetMeReadThrough)
 	}
 }
 
@@ -50,6 +51,27 @@ func (u *UserRouter) GetMe(c echo.Context) error {
 	var user *model.User
 	if caching == "true" {
 		user, err = u.UserUsecase.GetById(context.Background(), userID)
+	} else {
+		user, err = u.UserUsecase.GetByIdWithoutCache(context.Background(), userID)
+	}
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, user)
+}
+
+func (u *UserRouter) GetMeReadThrough(c echo.Context) error {
+	id := c.Request().Header.Get("User-ID")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	caching := c.QueryParam("caching")
+	var user *model.User
+	if caching == "true" {
+		user, err = u.UserUsecase.GetByIdReadThrough(context.Background(), userID)
 	} else {
 		user, err = u.UserUsecase.GetByIdWithoutCache(context.Background(), userID)
 	}

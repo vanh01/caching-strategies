@@ -3,10 +3,12 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
+	cuscache "github.com/vanh01/caching-strategies/internal/cus_cache"
 	"github.com/vanh01/caching-strategies/internal/model"
 	"github.com/vanh01/caching-strategies/pkg/cache"
 )
@@ -41,6 +43,11 @@ func (a *userUsecase) GetById(ctx context.Context, id uuid.UUID) (*model.User, e
 	}
 
 	return user, nil
+}
+
+func (a *userUsecase) GetByIdReadThrough(ctx context.Context, id uuid.UUID) (*model.User, error) {
+	ttl := 2 * time.Minute
+	return cuscache.Get[model.User](id.String(), &ttl)
 }
 
 func (a *userUsecase) GetByIdWithoutCache(ctx context.Context, id uuid.UUID) (*model.User, error) {
